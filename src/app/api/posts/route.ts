@@ -6,6 +6,7 @@ import { followingIds } from "@/lib/access";
 import { postInclude, visiblePosts } from "@/lib/postsQuery";
 import { serializePost } from "@/lib/serialize";
 import { notify } from "@/lib/notify";
+import { like } from "@/lib/like";
 import { saveUpload } from "@/lib/upload";
 
 export async function GET(request: Request) {
@@ -40,9 +41,9 @@ export async function GET(request: Request) {
         where,
         {
           OR: [
-            { body: { contains: q } },
-            { location: { contains: q } },
-            { project: { title: { contains: q } } },
+            { body: like(q) },
+            { location: like(q) },
+            { project: { title: like(q) } },
           ],
         },
       ],

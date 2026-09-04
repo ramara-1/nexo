@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-const SCHEMA_GEN = "nexo-concept-2";
+const SCHEMA_GEN = "nexo-postgres-1";
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
   prismaSchema?: string;

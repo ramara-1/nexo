@@ -5,7 +5,7 @@ import { blockedIds } from "@/lib/access";
 import { publicUser } from "@/lib/serialize";
 import { visiblePosts } from "@/lib/postsQuery";
 import { canSeeContent, followingIds } from "@/lib/access";
-import { serializeProject } from "@/lib/serialize";
+import { like } from "@/lib/like";
 
 export async function GET(request: Request) {
   const session = await readSession();
@@ -31,10 +31,10 @@ export async function GET(request: Request) {
           {
             OR: [
               { handle: { contains: q.toLowerCase() } },
-              { name: { contains: q } },
-              { doing: { contains: q } },
-              { learning: { contains: q } },
-              { helpOffering: { contains: q } },
+              { name: like(q) },
+              { doing: like(q) },
+              { learning: like(q) },
+              { helpOffering: like(q) },
             ],
           },
         ],
@@ -42,10 +42,10 @@ export async function GET(request: Request) {
       take: 12,
     }),
     visiblePosts(session.id, {
-      OR: [{ body: { contains: q } }, { location: { contains: q } }],
+      OR: [{ body: like(q) }, { location: like(q) }],
     }, 12),
     prisma.project.findMany({
-      where: { title: { contains: q } },
+      where: { title: like(q) },
       take: 12,
       include: { author: true },
     }),

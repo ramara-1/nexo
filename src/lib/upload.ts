@@ -5,6 +5,9 @@ import { randomBytes } from "crypto";
 const MAX = 12 * 1024 * 1024;
 
 export async function saveUpload(file: File) {
+  if (process.env.VERCEL) {
+    throw new Error("No site publicado, use um link de imagem (https://…). Envio de arquivo fica no computador local.");
+  }
   if (file.size > MAX) {
     throw new Error("Arquivo grande demais (máx. 12 MB).");
   }
