@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-paper: #f3f2fa;
+  --color-ink: #ffffff;
+  --color-panel: #ffffff;
+  --color-line: #e7e5f2;
+  --color-cream: #1b1833;
+  --color-mute: #8a88a6;
+  --color-ember: #6c4dff;
+  --color-brand-soft: #eee9ff;
+  --color-help: #e11d48;
+  --color-ok: #16a34a;
+  --font-sans: var(--font-outfit);
+  --font-display: var(--font-outfit);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-cream);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+::selection {
+  background: #6c4dff;
+  color: #fff;
+}
+
+textarea,
+input,
+button,
+select {
+  font-family: inherit;
+}
+
+.field {
+  width: 100%;
+  border-radius: 0.9rem;
+  border: 1px solid var(--color-line);
+  background: #fff;
+  padding: 0.65rem 0.85rem;
+  color: var(--color-cream);
+  outline: none;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid var(--color-line);
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 30px rgba(28, 23, 61, 0.04);
+}
+
+.badge-idea {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+.badge-building {
+  background: #ede9fe;
+  color: #6c4dff;
+}
+.badge-learning {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+.badge-help {
+  background: #ffe4e6;
+  color: #e11d48;
+}
+.badge-done,
+.badge-achievement {
+  background: #dcfce7;
+  color: #15803d;
+}
+.badge-tip,
+.badge-talk {
+  background: #f4f3fb;
+  color: #5b5878;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-rise {
+  animation: rise 0.45s ease both;
+}

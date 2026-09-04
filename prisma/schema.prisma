@@ -1,0 +1,196 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String   @id @default(cuid())
+  handle          String   @unique
+  name            String
+  email           String   @unique
+  passwordHash    String
+  bio             String   @default("")
+  thinking        String   @default("")
+  doing           String   @default("")
+  learning        String   @default("")
+  helpOffering    String   @default("")
+  helpSeeking     String   @default("")
+  spacePrivacy    String   @default("{}")
+  avatarHue       Int      @default(18)
+  avatarUrl       String?
+  onboardingDone  Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  posts            Post[]
+  projects         Project[]
+  reactions        Reaction[]
+  comments         Comment[]
+  following        Follow[]        @relation("Following")
+  followers        Follow[]        @relation("Followers")
+  notifications    Notification[]  @relation("Notified")
+  actions          Notification[]  @relation("Actor")
+  sentMessages     Message[]
+  conversationsA   Conversation[]  @relation("ConvA")
+  conversationsB   Conversation[]  @relation("ConvB")
+  blocksMade       Block[]         @relation("BlocksMade")
+  blocksReceived   Block[]         @relation("BlocksReceived")
+  mutesMade        Mute[]          @relation("MutesMade")
+  mutesReceived    Mute[]          @relation("MutesReceived")
+  reportsMade      Report[]
+  helpfulComments  Comment[]       @relation("HelpfulFor")
+}
+
+model Project {
+  id         String   @id @default(cuid())
+  title      String
+  status     String   @default("idea")
+  visibility String   @default("public")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  posts      Post[]
+
+  @@index([authorId, updatedAt])
+}
+
+model Post {
+  id           String   @id @default(cuid())
+  body         String
+  kind         String   @default("talk")
+  visibility   String   @default("public")
+  location     String?
+  mediaUrl     String?
+  mediaKind    String?
+  fileName     String?
+  helpResolved Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  authorId     String
+  author       User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  projectId    String?
+  project      Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  reactions     Reaction[]
+  comments      Comment[]
+  notifications Notification[]
+  messages      Message[]
+
+  @@index([createdAt])
+  @@index([kind])
+}
+
+model Reaction {
+  id     String @id @default(cuid())
+  kind   String
+  userId String
+  postId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId, kind])
+}
+
+model Comment {
+  id            String   @id @default(cuid())
+  body          String
+  fileUrl       String?
+  fileName      String?
+  markedHelpful Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  userId        String
+  postId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post          Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  helpedUserId  String?
+  helpedUser    User?    @relation("HelpfulFor", fields: [helpedUserId], references: [id])
+
+  @@index([postId])
+}
+
+model Follow {
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+  follower    User     @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId])
+}
+
+model Notification {
+  id             String   @id @default(cuid())
+  type           String
+  read           Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  userId         String
+  actorId        String
+  postId         String?
+  conversationId String?
+  user           User     @relation("Notified", fields: [userId], references: [id], onDelete: Cascade)
+  actor          User     @relation("Actor", fields: [actorId], references: [id], onDelete: Cascade)
+  post           Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model Conversation {
+  id            String    @id @default(cuid())
+  userAId       String
+  userBId       String
+  updatedAt     DateTime  @updatedAt
+  userA         User      @relation("ConvA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB         User      @relation("ConvB", fields: [userBId], references: [id], onDelete: Cascade)
+  messages      Message[]
+
+  @@unique([userAId, userBId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  body           String       @default("")
+  mediaUrl       String?
+  fileName       String?
+  createdAt      DateTime     @default(now())
+  senderId       String
+  conversationId String
+  sharedPostId   String?
+  sharedProjectId String?
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sharedPost     Post?        @relation(fields: [sharedPostId], references: [id], onDelete: SetNull)
+
+  @@index([conversationId, createdAt])
+}
+
+model Block {
+  blockerId String
+  blockedId String
+  createdAt DateTime @default(now())
+  blocker   User     @relation("BlocksMade", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked   User     @relation("BlocksReceived", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@id([blockerId, blockedId])
+}
+
+model Mute {
+  muterId  String
+  mutedId  String
+  createdAt DateTime @default(now())
+  muter    User     @relation("MutesMade", fields: [muterId], references: [id], onDelete: Cascade)
+  muted    User     @relation("MutesReceived", fields: [mutedId], references: [id], onDelete: Cascade)
+
+  @@id([muterId, mutedId])
+}
+
+model Report {
+  id         String   @id @default(cuid())
+  reason     String
+  createdAt  DateTime @default(now())
+  reporterId String
+  targetId   String
+  reporter   User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+}
